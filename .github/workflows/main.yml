@@ -23,12 +23,6 @@ jobs:
       # Configure the Pages environment (sets URLs, etc.)
       - uses: actions/configure-pages@v5
 
-      # Install a recent Ruby + Bundler and cache gems
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          working-directory: docs
-
       # Build Jekyll from ./docs into ../_site
       - name: Build with Jekyll
         working-directory: docs
