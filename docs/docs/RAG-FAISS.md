@@ -1,18 +1,18 @@
 ---
 layout: post
-title: "RAG avec FAISS et Instructor Embeddings (CLI)"
+title: "RAG avec FAISS et Instructor Embeddings"
 nav_order: 15
 categories: code
 ---
 
-# RAG avec FAISS et Instructor Embeddings (CLI)
+# RAG avec FAISS et Instructor Embeddings
 
 Cette application illustre un pipeline de **Retrieval-Augmented Generation (RAG)** intégrant :
 - des **embeddings** calculés avec Sentence-Transformers,
 - une **recherche vectorielle** (FAISS ou similarité cosinus),
 - une **génération de texte** par modèle de langage (OpenAI GPT-3.5 ou TinyLlama local).
 
-La version CLI (`main_cli.py`) permet de contrôler le corpus, la requête, la méthode de recherche et le modèle, sans modifier le code source.
+Le fichier principal (`main.py`) permet de contrôler le corpus, la requête, la méthode de recherche et le modèle, sans modifier le code source.
 
 ## Installation
 
@@ -24,12 +24,10 @@ La version CLI (`main_cli.py`) permet de contrôler le corpus, la requête, la m
 
 ### Étapes
 
-- Clonez le dépôt et installez les dépendances :
-
+Pour installer l'application, commencez par copier le dépot du livre ([AI-book sur github][ia-gh]),
+soit en recupérant l'archive zip depuis github, soit à l'aide de l'outil git:
 ```bash
-git clone [https://github.com/iridia-ulb/Eyrolles-Edition4](https://github.com/iridia-ulb/Eyrolles-Edition4)
-cd Eyrolles-Edition4/eyrolles-edition4
-poetry install
+git clone https://github.com/iridia-ulb/AI-book
 ```
 
 - Exportez votre clé OpenAI si vous souhaitez utiliser GPT-3.5 :
@@ -38,20 +36,22 @@ poetry install
 export OPENAI_API_KEY="sk-..."
 ```
 
+Alternativement, vous pouvez la renseigner dans le fichier `llm.py` à la ligne 7 (`openai.api_key = "Votre clé"`).
+
 ## Utilisation
 
 Affichez l’aide complète :
 
 ```bash
-poetry run python main_cli.py --help
+poetry run python main.py --help
 ```
 
 ## Exemples
 
-* Démonstration complète (séquence intégrée)
+### Démonstration complète (séquence intégrée)
 
 ```bash
-poetry run python main_cli.py --demo
+poetry run python main.py --demo
 ```
 
 Exécute successivement :
@@ -59,35 +59,24 @@ Exécute successivement :
 - RAG FAISS et Cosine avec GPT-3.5 (k=5),
 - RAG FAISS et Cosine avec TinyLlama (k=2).
 
-* Requête RAG simple (FAISS + OpenAI)
+### Requête RAG simple (FAISS + OpenAI)
 
 ```bash
-poetry run python main_cli.py \
-  --data_dir data/jo \
-  --query "Explain volunteer onboarding" \
-  --search faiss \
-  --k 5 \
-  --model gpt-3.5-turbo
+poetry run python main.py --data_dir data/jo --query "Explain volunteer onboarding" --search faiss --k 5 --model gpt-3.5-turbo
 ```
 
-* Requête RAG avec TinyLlama
+### Requête RAG avec TinyLlama
 
 ```bash
-poetry run python main_cli.py \
-  --query "What are opening ceremony logistics?" \
-  --search cosine \
-  --k 4 \
-  --model tinyllama
+poetry run python main_cli.py --query "What are opening ceremony logistics?" --search cosine --k 4  --model tinyllama
 ```
 
 Pour TinyLlama, le script ajuste automatiquement k=2 pour respecter sa fenêtre de contexte plus réduite.
 
-* Réponse sans documents
+### Réponse sans documents
 
 ```bash
-poetry run python main_cli.py \
-  --query "Summarize the volunteer program" \
-  --no_docs
+poetry run python main_cli.py --query "Summarize the volunteer program" --no_docs
 ```
 
 ## Paramètres
