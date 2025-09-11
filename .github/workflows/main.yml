@@ -17,10 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Toutes les commandes 'run:' s’exécutent dans docs/
-    defaults:
-      run:
-        working-directory: docs
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,21 +25,28 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-          bundler-cache: true      # utilise le Gemfile de docs/
-          cache-version: 0
+
+      # Install gems from docs/Gemfile (don’t rely on bundler-cache here)
+      - name: Bundle install (docs)
+        working-directory: docs
+        run: |
+          bundle config set path vendor/bundle
+          bundle install --jobs 4 --retry 3
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Build with Jekyll
-        # On construit depuis docs/ vers _site à la racine du repo
-        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}" --destination ../_site
+      - name: Build with Jekyll (docs -> _site at repo root)
+        working-directory: docs
         env:
           JEKYLL_ENV: production
+        run: |
+          bundle exec jekyll build \
+            --baseurl "${{ steps.pages.outputs.base_path }}" \
+            --destination ../_site
 
       - name: Upload artifact
-        # L’action s’exécute à la racine, on envoie ./_site
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
