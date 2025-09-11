@@ -15,26 +15,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      # Configure the Pages environment (sets URLs, etc.)
-      - uses: actions/configure-pages@v5
-
-      # Build Jekyll from ./docs into ../_site
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
       - name: Build with Jekyll
-        working-directory: docs
-        run: |
-          bundle install --path vendor/bundle
-          bundle exec jekyll build --destination ../_site
-
-      # Upload the built site as the artifact for Pages
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
 
   deploy:
     runs-on: ubuntu-latest
