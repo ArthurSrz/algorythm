@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "eyrolles-edition4"
+version = "0.1.0"
+description = "RAG Pipeline implementation"
+authors = ["Julien <julien.baudru@ulb.be>"]
+license = "MIT"
+
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">3.13.0"
+faiss-cpu = "*"
+sentence-transformers = "*"
+openai = "0.28"
+numpy = "*"
+pandas = "*"
+torch = "*"
+tqdm = "*"
+transformers = "*"
+accelerate = ">=0.26.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
