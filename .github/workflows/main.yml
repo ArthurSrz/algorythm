@@ -27,8 +27,6 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'            # Any recent 3.x is fine
-          bundler-cache: true
           working-directory: docs
 
       # Build Jekyll from ./docs into ../_site
