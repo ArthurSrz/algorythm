@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "eyrolles-edition4"
+name = "RAG-FAISS"
 version = "0.1.0"
 description = "RAG Pipeline implementation"
 authors = ["Julien <julien.baudru@ulb.be>"]
