@@ -70,66 +70,80 @@ def solveAI(puzzle):
     """
     Implementation of the A* algorithm to solve the 8-puzzle game.
 
-    :param puzzle: The puzzle instance
-    :return: The sequence of positions of the blank tile in order to solve the puzzle.
-             This corresponds to the path to go from the initial to the winning configuration.
-    """
-    start = puzzle.tiles
-    q = [(0, start, [start[-1]])]
-    # We transform q into a priority queue (heapq)
-    heapq.heapify(q)
-    g_scores = {str(start): 0}
+    :param puzzle: The puzzle instance.
+                   puzzle.tiles can be read/written (list of 9 (x,y) tuples).
+                   puzzle.isWin() returns True when puzzle.tiles matches the goal.
+    :return:       A list of blank-tile positions tracing the solution path.
+                   e.g. [(2,2), (1,2), (1,1), ...] — each entry is where the blank
+                   moves to at each step.
 
-    while len(q) != 0:
-        current = heapq.heappop(q)
-        puzzle.tiles = current[1]
+    Available helpers:
+        - heapq.heappush(queue, (priority, state, path))
+        - heapq.heappop(queue) -> (priority, state, path)
+        - moves(puzzle) -> list of neighbor configurations (set puzzle.tiles first!)
+        - heuristic(puzzle, config) -> int (Manhattan distance for a configuration)
+    """
+    start_tiles = puzzle.tiles[:]
+    queue = []
+    heapq.heappush(queue, (heuristic(puzzle, start_tiles), start_tiles, [start_tiles[-1]]))
+    g_scores = {str(start_tiles): 0}
+
+    while queue:
+        f_score, current_config, path = heapq.heappop(queue)
+        puzzle.tiles = current_config
 
         if puzzle.isWin():
-            print("Found solution:", current[2])
-            return current[2]
+            return path
 
-        for m in moves(puzzle):
-            # for all moves, g is the current cost
-            g = g_scores[str(current[1])] + 1
-            # f is the sum of the current cost + heuristic
-            f = g + heuristic(puzzle, m)
-            if str(m) not in g_scores or g < g_scores[str(m)]:
-                heapq.heappush(q, (f, m, current[2] + [m[-1]]))
-                g_scores[str(m)] = g
+        for next_config in moves(puzzle):
+            g = g_scores[str(current_config)] + 1
+            if str(next_config) not in g_scores or g < g_scores[str(next_config)]:
+                g_scores[str(next_config)] = g
+                f = g + heuristic(puzzle, next_config)
+                heapq.heappush(queue, (f, next_config, path + [next_config[-1]]))
 
 
 def moves(puzzle):
     """
     Compute the accessible configurations from the current one with the possible moves.
 
-    :param puzzle: The puzzle instance
-    :return: The sets of accessible configurations.
+    :param puzzle: The puzzle instance.
+                   puzzle.tiles is the current configuration (list of 9 (x,y) tuples).
+                   puzzle.tiles[-1] is the blank tile position.
+                   puzzle.adjacent() returns 4 neighbor positions (up/down/left/right of blank).
+                   puzzle.inGrid(pos) checks if a position is within the 3x3 grid.
+                   puzzle.getBlank() returns the current blank position.
+    :return:       A list of new configurations (each is a list of 9 (x,y) tuples),
+                   one per valid move.
     """
-    moves = []
-    potential_neighbors = puzzle.adjacent()
-
-    for n in potential_neighbors:
-        if puzzle.inGrid(n):
-            new_tiles = puzzle.tiles.copy()
-            new_tiles[-1] = n
-            pos_n = puzzle.tiles.index(n)
-            new_tiles[pos_n] = puzzle.getBlank()
-            moves.append(new_tiles)
-    return moves
+    adjacent_positions = puzzle.adjacent()
+    for pos in adjacent_positions:
+        if puzzle.inGrid(pos):
+            new_config = puzzle.tiles[:]
+            blank_pos = puzzle.getBlank()
+            blank_index = new_config.index(blank_pos)
+            tile_index = new_config.index(pos)
+            new_config[blank_index], new_config[tile_index] = new_config[tile_index], new_config[blank_index]
+            yield new_config
 
 
 def heuristic(puzzle, n):
     """
     Compute the Manhattan distance of all tiles corresponding to the heuristic used in the A* algorithm.
 
-    :param puzzle: The puzzle instance
-    :param n: Configuration for which we want to compute the total Manhattan distance.
-    :return:  Total Manhattan distances for all tiles in configuration.
+    :param puzzle: The puzzle instance.
+                   puzzle.winCdt is the goal configuration: a list of 9 (x, y) tuples
+                   representing where each tile SHOULD be.
+    :param n:      A candidate configuration: a list of 9 (x, y) tuples
+                   representing where each tile currently IS.
+    :return:       Total Manhattan distance (int) summed across all 9 tiles.
     """
+    
     dist = 0
     for i in range(9):
-        # Sum of Manhattan distances for all tiles
-        dist += abs(n[i][0] - puzzle.winCdt[i][0]) + abs(n[i][1] - puzzle.winCdt[i][1])
+        current_x, current_y = n[i]
+        goal_x, goal_y = puzzle.winCdt[i]
+        dist += abs(current_x - goal_x) + abs(current_y - goal_y)
     return dist
 
 
